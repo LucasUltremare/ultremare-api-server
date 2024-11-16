@@ -24,3 +24,4 @@ Thumbs.db
 # Outros
 .vscode/     # Configurações do VS Code (se não quiser compartilhar)
 .idea/       # Configurações do IntelliJ
+.vercel

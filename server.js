@@ -81,7 +81,6 @@ app.get('/logout', (req, res) => {
   res.redirect('/login');
 });
 
-// Rota padrão
 app.get('/', (req, res) => {
   res.render('index', { title: 'Bem-vindo à Ultremare' });
 });
