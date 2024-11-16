@@ -2,11 +2,25 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session'); // Sessões para autenticação do dashboard
+const livereload = require('livereload');
+const connectLivereload = require('connect-livereload');
 
 // Inicializa o app Express
 const app = express();
 
-// Configurações
+// Configuração do LiveReload para ambiente de desenvolvimento
+if (process.env.NODE_ENV !== 'production') {
+  const liveReloadServer = livereload.createServer({
+    exts: ['ejs', 'css', 'js'], // Tipos de arquivos a serem monitorados
+    delay: 100 // Pequeno atraso para garantir o refresh correto
+  });
+  liveReloadServer.watch(path.join(__dirname, 'views'));
+  liveReloadServer.watch(path.join(__dirname, 'public'));
+  
+  app.use(connectLivereload());
+}
+
+// Configurações gerais
 const PORT = process.env.PORT || 3000;
 
 // Middleware para lidar com JSON e dados de formulário
@@ -23,10 +37,10 @@ app.use(session({
 // Servir arquivos estáticos da pasta "public"
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Renderização de views (caso use templates como EJS)
+// Renderização de views (EJS)
 app.set('views', [
   path.join(__dirname, 'views'),
-  path.join(__dirname, 'views/partials') // Adiciona o diretório de partials
+  path.join(__dirname, 'views/partials') // Diretório de partials
 ]);
 app.set('view engine', 'ejs');
 
@@ -34,7 +48,7 @@ app.set('view engine', 'ejs');
 const apiRoutes = require('./api');
 app.use('/api', apiRoutes); // Modularização para rotas da API
 
-// Rotas para o Dashboard
+// Rotas do Dashboard
 const isAuthenticated = (req, res, next) => {
   if (req.session.isLoggedIn) {
     next();
