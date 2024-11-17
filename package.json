@@ -17,7 +17,8 @@
     "ejs": "^3.1.10",
     "express": "^4.21.1",
     "express-session": "^1.18.1",
-    "livereload": "^0.9.3"
+    "livereload": "^0.9.3",
+    "node-fetch": "^2.7.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"

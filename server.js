@@ -5,6 +5,7 @@ const session = require('express-session'); // Sessões para autenticação do d
 const livereload = require('livereload');
 const connectLivereload = require('connect-livereload');
 
+
 // Inicializa o app Express
 const app = express();
 
@@ -44,10 +45,13 @@ app.set('views', [
 ]);
 app.set('view engine', 'ejs');
 
-// Rotas de API
-const apiRoutes = require('./api');
-app.use('/api', apiRoutes); // Modularização para rotas da API
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
+// Rotas da API
+const apiRoutes = require('./api/index');
+app.use('/api', apiRoutes);
 
 // Rota para fornecer a quantidade de APIs rodando
 app.get('/api/active-count', (req, res) => {
