@@ -48,6 +48,20 @@ app.set('view engine', 'ejs');
 const apiRoutes = require('./api');
 app.use('/api', apiRoutes); // Modularização para rotas da API
 
+
+// Rota para fornecer a quantidade de APIs rodando
+app.get('/api/active-count', (req, res) => {
+  // Obter todas as rotas registradas no Express
+  const apiRoutes = app._router.stack
+    .filter((middleware) => middleware.route && middleware.route.path.startsWith('/api'))
+    .map((middleware) => middleware.route.path);
+
+  const activeApiCount = apiRoutes.length; // Conta o número de APIs
+
+  res.json({ count: activeApiCount });
+});
+
+
 // Rotas do Dashboard
 const isAuthenticated = (req, res, next) => {
   if (req.session.isLoggedIn) {
@@ -82,7 +96,7 @@ app.get('/logout', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.render('index', { title: 'Bem-vindo à Ultremare' });
+  res.render('login', { title: 'Bem-vindo à Ultremare' });
 });
 
 // Inicializa o servidor
