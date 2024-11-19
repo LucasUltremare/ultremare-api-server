@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Reconhecimento de Voz</title>
+</head>
+<body>
+  <h1>Fale algo!</h1>
+  <button onclick="startRecognition()">Iniciar Reconhecimento de Voz</button>
+
+  <script>
+    // Verifica se o navegador suporta o reconhecimento de fala
+    if ('webkitSpeechRecognition' in window) {
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = 'pt-BR';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onresult = function(event) {
+        const comando = event.results[0][0].transcript;
+        console.log("Comando reconhecido:", comando);
+
+        // TODO Enviar o comando para a API T
+        fetch('http://localhost:3000/comando', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                comando: 'qual_temperatura' // Certifique-se de que o comando corresponde ao backend
+            })
+            })
+            .then(response => response.json())
+            .then(data => {
+            console.log(data.mensagem); // Deve exibir "A temperatura é 25°C"
+            })
+            .catch(error => {
+            console.error('Erro:', error);
+            });
+
+
+      };
+
+      function startRecognition() {
+        recognition.start();
+      }
+    } else {
+      alert("Seu navegador não suporta o reconhecimento de fala.");
+    }
+  </script>
+</body>
+</html>
