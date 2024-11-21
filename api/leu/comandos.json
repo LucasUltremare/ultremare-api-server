@@ -1,0 +1,14 @@
+[
+  {
+      "keywords": ["ligar luz", "acender luz", "ligar a luz"],
+      "resposta": "Luz ativada"
+  },
+  {
+      "keywords": ["Desligar luz", "apagar luz", "desligar a luz"],
+      "resposta": "Luz desligada"
+  },
+  {
+      "keywords": ["qual temperatura", "temperatura", "clima"],
+      "resposta": "A temperatura é 25°C"
+  }
+]

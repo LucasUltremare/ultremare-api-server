@@ -1,52 +1,56 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Reconhecimento de Voz</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistente Virtual</title>
 </head>
 <body>
-  <h1>Fale algo!</h1>
-  <button onclick="startRecognition()">Iniciar Reconhecimento de Voz</button>
+    <h1>Assistente Virtual</h1>
+    <p>Fale algo para a assistente...</p>
+    <div id="resultado">Aguardando comando...</div>
 
-  <script>
-    // Verifica se o navegador suporta o reconhecimento de fala
-    if ('webkitSpeechRecognition' in window) {
-      const recognition = new webkitSpeechRecognition();
-      recognition.lang = 'pt-BR';
-      recognition.continuous = false;
-      recognition.interimResults = false;
+    <script>
+        // Configurando reconhecimento de voz
+        if ('webkitSpeechRecognition' in window) {
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'pt-BR';
+            recognition.continuous = false;
 
-      recognition.onresult = function(event) {
-        const comando = event.results[0][0].transcript;
-        console.log("Comando reconhecido:", comando);
+            recognition.onresult = async function(event) {
+                const comando = event.results[0][0].transcript.trim(); // Texto reconhecido
+                console.log(`Comando reconhecido: ${comando}`);
 
-        // TODO Enviar o comando para a API T
-        fetch('http://localhost:3000/comando', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                comando: 'qual_temperatura' // Certifique-se de que o comando corresponde ao backend
-            })
-            })
-            .then(response => response.json())
-            .then(data => {
-            console.log(data.mensagem); // Deve exibir "A temperatura é 25°C"
-            })
-            .catch(error => {
-            console.error('Erro:', error);
-            });
+                // Mostra no frontend
+                document.getElementById('resultado').innerText = `Comando reconhecido: ${comando}`;
 
+                // Envia o comando para a API
+                try {
+                    const resposta = await fetch('http://localhost:3000/comando', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ comando: comando })
+                    });
+                    const dados = await resposta.json();
 
-      };
+                    // Mostra a resposta da API no frontend
+                    document.getElementById('resultado').innerText = dados.mensagem;
+                } catch (error) {
+                    console.error('Erro ao enviar comando:', error);
+                    document.getElementById('resultado').innerText = 'Erro ao processar comando.';
+                }
+            };
 
-      function startRecognition() {
-        recognition.start();
-      }
-    } else {
-      alert("Seu navegador não suporta o reconhecimento de fala.");
-    }
-  </script>
+            recognition.onerror = function(event) {
+                console.error('Erro no reconhecimento de voz:', event.error);
+                document.getElementById('resultado').innerText = 'Erro no reconhecimento de voz.';
+            };
+
+            // Inicia o reconhecimento de voz
+            recognition.start();
+        } else {
+            alert('Seu navegador não suporta reconhecimento de voz.');
+        }
+    </script>
 </body>
 </html>

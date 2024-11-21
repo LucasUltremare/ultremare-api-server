@@ -1,71 +1,45 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors'); // Importa o pacote CORS
+const cors = require('cors');
+const fs = require('fs');
 
 const app = express();
 const port = 3000;
 
-// Middleware para permitir CORS
 app.use(cors());
-
-// Middleware para processar JSON
 app.use(bodyParser.json());
+
+// Função para carregar os comandos do JSON
+function carregarComandos() {
+    const rawData = fs.readFileSync('comandos.json');
+    return JSON.parse(rawData);
+}
+
+// Função para identificar o comando baseado nas palavras-chave
+function identificarComando(comando, acoes) {
+    for (const acao of acoes) {
+        for (const keyword of acao.keywords) {
+            if (comando.includes(keyword)) {
+                return acao.resposta;
+            }
+        }
+    }
+    return "Comando não reconhecido."; // Resposta padrão para comandos inválidos
+}
 
 // Rota para processar comandos
 app.post('/comando', (req, res) => {
     const comando = (req.body.comando || '').trim().toLowerCase(); // Padroniza o comando
-    console.log(`Comando recebido: ${comando}`); // Log para monitorar
+    console.log(`Comando recebido: ${comando}`);
 
-    // Mapeamento de comandos para respostas
-    const acoes = {
-        "ligar_luz": "Luz ativada",
-        "desligar_luz": "Luz desligada",
-        "qual_temperatura": "A temperatura é 25°C"
-    };
+    const acoes = carregarComandos(); // Carrega comandos do JSON
+    const resposta = identificarComando(comando, acoes); // Busca a resposta
+    console.log(`Resposta enviada: ${resposta}`);
 
-    // Busca a resposta para o comando ou define como "não reconhecido"
-    const resposta = acoes[comando] || "Comando não reconhecido.";
-    console.log(`Resposta enviada: ${resposta}`); // Log para conferir a resposta
-
-    // Retorna a resposta como JSON
-    res.json({ mensagem: resposta });
+    res.json({ mensagem: resposta }); // Retorna a resposta
 });
 
 // Inicializa o servidor
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
 });
-
-// const express = require('express');
-// const cors = require('cors');
-// const app = express();
-// const port = 3000;
-
-// // Habilitar o CORS para todas as origens
-// app.use(cors());
-
-// app.use(express.json());
-
-// const acoes = {
-//   "ligar_luz": "Luz ativada",
-//   "desligar_luz": "Luz desligada",
-//   "qual_temperatura": "A temperatura é 25°C"
-// };
-
-// app.post('/comando', (req, res) => {
-//     const comando = req.body.comando;
-//     console.log("Comando recebido:", comando); // Exibe o comando recebido
-//     const resposta = acoes[comando];
-//     console.log("Resposta encontrada:", resposta); // Exibe a resposta encontrada no objeto `acoes`
-  
-//     if (resposta) {
-//       res.json({ mensagem: resposta });
-//     } else {
-//       res.status(400).json({ error: "Comando não reconhecido." });
-//     }
-//   });
-  
-
-// app.listen(port, () => {
-//   console.log(`Servidor rodando em http://localhost:${port}`);
-// });
