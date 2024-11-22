@@ -1,14 +1,37 @@
-[
-  {
-      "keywords": ["ligar luz", "acender luz", "ligar a luz"],
-      "resposta": "Luz ativada"
-  },
-  {
-      "keywords": ["Desligar luz", "apagar luz", "desligar a luz"],
-      "resposta": "Luz desligada"
-  },
-  {
-      "keywords": ["qual temperatura", "temperatura", "clima"],
-      "resposta": "A temperatura é 25°C"
+{
+    "comandos": [
+      {
+        "variacoes": ["ligar a luz", "acenda a luz", "ative a luz"],
+        "respostas": [
+          "A luz foi ligada!",
+          "Pronto, luz ativada.",
+          "Claro, já liguei a luz para você!"
+        ]
+      },
+      {
+        "variacoes": ["qual a temperatura", "me diga a temperatura", "como está o clima"],
+        "respostas": [
+          "A temperatura é 25°C.",
+          "Agora está fazendo 25°C.",
+          "O clima está agradável, 25°C."
+        ]
+      },
+      {
+        "variacoes": ["olá tudo bem", "oi tudo bem", "como você está"],
+        "respostas": [
+          "Olá! Estou aqui para ajudar!",
+          "Tudo ótimo, e você?",
+          "Oi! Estou sempre pronta para te ajudar!"
+        ]
+      },
+      {
+        "variacoes": ["desligar a luz", "apague a luz", "desative a luz"],
+        "respostas": [
+          "A luz foi desligada!",
+          "Pronto, apaguei a luz.",
+          "Desliguei a luz para você."
+        ]
+      }
+    ]
   }
-]
+  

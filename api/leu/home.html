@@ -1,56 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistente Virtual</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assistente Virtual</title>
 </head>
 <body>
-    <h1>Assistente Virtual</h1>
-    <p>Fale algo para a assistente...</p>
-    <div id="resultado">Aguardando comando...</div>
+  <h1>Assistente Virtual</h1>
+  <p id="comando">Comando reconhecido: </p>
+  <p id="resposta">Resposta: </p>
 
-    <script>
-        // Configurando reconhecimento de voz
-        if ('webkitSpeechRecognition' in window) {
-            const recognition = new webkitSpeechRecognition();
-            recognition.lang = 'pt-BR';
-            recognition.continuous = false;
+  <script>
+    // Configuração do reconhecimento de voz
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'pt-BR'; // Define o idioma para português do Brasil
+    recognition.interimResults = false;
 
-            recognition.onresult = async function(event) {
-                const comando = event.results[0][0].transcript.trim(); // Texto reconhecido
-                console.log(`Comando reconhecido: ${comando}`);
+    // Função para transformar texto em fala
+    function speak(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 1; // Velocidade normal
+      window.speechSynthesis.speak(utterance);
+    }
 
-                // Mostra no frontend
-                document.getElementById('resultado').innerText = `Comando reconhecido: ${comando}`;
+    recognition.onresult = async (event) => {
+      const comando = event.results[0][0].transcript; // Texto do comando reconhecido
+      document.getElementById('comando').innerText = `Comando reconhecido: ${comando}`;
 
-                // Envia o comando para a API
-                try {
-                    const resposta = await fetch('http://localhost:3000/comando', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ comando: comando })
-                    });
-                    const dados = await resposta.json();
+      try {
+        // Enviar o comando para a API
+        const response = await fetch('http://localhost:3000/comando', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ comando })
+        });
 
-                    // Mostra a resposta da API no frontend
-                    document.getElementById('resultado').innerText = dados.mensagem;
-                } catch (error) {
-                    console.error('Erro ao enviar comando:', error);
-                    document.getElementById('resultado').innerText = 'Erro ao processar comando.';
-                }
-            };
-
-            recognition.onerror = function(event) {
-                console.error('Erro no reconhecimento de voz:', event.error);
-                document.getElementById('resultado').innerText = 'Erro no reconhecimento de voz.';
-            };
-
-            // Inicia o reconhecimento de voz
-            recognition.start();
+        if (response.ok) {
+          const data = await response.json();
+          const resposta = data.resposta; // Resposta retornada pela API
+          document.getElementById('resposta').innerText = `Resposta: ${resposta}`;
+          
+          // Fazer a assistente falar a resposta
+          speak(resposta);
         } else {
-            alert('Seu navegador não suporta reconhecimento de voz.');
+          document.getElementById('resposta').innerText = `Erro ao obter resposta: ${response.status}`;
+          speak("Desculpe, ocorreu um erro ao processar o comando.");
         }
-    </script>
+      } catch (error) {
+        document.getElementById('resposta').innerText = `Erro: ${error.message}`;
+        speak("Desculpe, não consegui processar o comando.");
+      }
+    };
+
+    // Inicia o reconhecimento de voz quando a página carregar
+    recognition.start();
+
+    recognition.onend = () => {
+      recognition.start(); // Reinicia automaticamente o reconhecimento de voz
+    };
+  </script>
 </body>
 </html>

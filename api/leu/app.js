@@ -1,45 +1,69 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
 const fs = require('fs');
-
+const path = require('path');
 const app = express();
-const port = 3000;
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Função para carregar os comandos do JSON
+// Carregar os comandos do JSON
+const comandosPath = path.join(__dirname, 'comandos.json');
+let comandos = [];
+
+// Função para carregar os comandos do arquivo
 function carregarComandos() {
-    const rawData = fs.readFileSync('comandos.json');
-    return JSON.parse(rawData);
+  try {
+    const data = fs.readFileSync(comandosPath, 'utf8');
+    comandos = JSON.parse(data).comandos;
+  } catch (err) {
+    console.error('Erro ao carregar comandos:', err.message);
+    comandos = [];
+  }
 }
 
-// Função para identificar o comando baseado nas palavras-chave
-function identificarComando(comando, acoes) {
-    for (const acao of acoes) {
-        for (const keyword of acao.keywords) {
-            if (comando.includes(keyword)) {
-                return acao.resposta;
-            }
-        }
+// Carregar os comandos na inicialização do servidor
+carregarComandos();
+
+// Função para encontrar o comando correspondente
+function encontrarResposta(comando) {
+  const comandoLower = comando.toLowerCase();
+  for (const item of comandos) {
+    if (item.variacoes.some(variacao => variacao.toLowerCase() === comandoLower)) {
+      // Selecionar uma resposta aleatória do array de respostas
+      const respostas = item.respostas;
+      return respostas[Math.floor(Math.random() * respostas.length)];
     }
-    return "Comando não reconhecido."; // Resposta padrão para comandos inválidos
+  }
+  return null; // Não encontrou uma correspondência
 }
 
-// Rota para processar comandos
+// Endpoint para processar comandos
 app.post('/comando', (req, res) => {
-    const comando = (req.body.comando || '').trim().toLowerCase(); // Padroniza o comando
-    console.log(`Comando recebido: ${comando}`);
+  const { comando } = req.body;
 
-    const acoes = carregarComandos(); // Carrega comandos do JSON
-    const resposta = identificarComando(comando, acoes); // Busca a resposta
-    console.log(`Resposta enviada: ${resposta}`);
+  if (!comando) {
+    return res.status(400).json({ error: 'Comando não enviado.' });
+  }
 
-    res.json({ mensagem: resposta }); // Retorna a resposta
+  const resposta = encontrarResposta(comando);
+  if (resposta) {
+    return res.json({ resposta });
+  } else {
+    return res.json({ resposta: "Desculpe, não entendi o comando." });
+  }
 });
 
-// Inicializa o servidor
-app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
+// Endpoint para recarregar os comandos manualmente
+app.get('/recarregar', (req, res) => {
+  carregarComandos();
+  res.json({ message: 'Comandos recarregados com sucesso!' });
 });
+
+// Inicia o servidor
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando em http://localhost:${PORT}`);
+});
+
+
