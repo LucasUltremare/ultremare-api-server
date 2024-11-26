@@ -10,7 +10,7 @@
       },
       {
         "variacoes": ["qual a temperatura", "me diga a temperatura", "como está o clima"],
-        "respostas": [
+        "respostas": [ 
           "A temperatura é 25°C.",
           "Agora está fazendo 25°C.",
           "O clima está agradável, 25°C."
@@ -20,8 +20,9 @@
         "variacoes": ["olá tudo bem", "oi tudo bem", "como você está"],
         "respostas": [
           "Olá! Estou aqui para ajudar!",
-          "Tudo ótimo, e você?",
-          "Oi! Estou sempre pronta para te ajudar!"
+          "Tudo ótimo senhor, e você?",
+          "Oi! Estou sempre pronta para te ajudar!",
+          "Olá Senhor!"
         ]
       },
       {
