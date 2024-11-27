@@ -5,7 +5,7 @@ const router = express.Router();
 //router.use('/ultremare', require('./ultremare'));
 //router.use('/projetoX', require('./projetoX'));
 //router.use('/EVA'), require('./EVA')
-router.use('/leu'), require('./leu')
+router.use('/leu'), require('./linguagem-natural')
 // Adicione outras APIs conforme necessário
 
 
